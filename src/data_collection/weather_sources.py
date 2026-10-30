@@ -161,6 +161,11 @@ class WeatherDataCollector(OpenMeteoCacheMixin, SettlementSourceMixin, MetarSour
         self.open_meteo_multi_model_cache_ttl_sec = int(
             os.getenv("OPEN_METEO_MULTI_MODEL_CACHE_TTL_SEC", "900")
         )
+        # Forecast + multi-model may point at a self-hosted Open-Meteo; ensemble stays public.
+        self.open_meteo_forecast_url = (
+            os.getenv("OPEN_METEO_FORECAST_URL", "").strip()
+            or "https://api.open-meteo.com/v1/forecast"
+        )
         self.multi_model_cache_version = str(
             os.getenv("OPEN_METEO_MULTI_MODEL_CACHE_VERSION", "v3")
         ).strip() or "v3"
@@ -172,6 +177,9 @@ class WeatherDataCollector(OpenMeteoCacheMixin, SettlementSourceMixin, MetarSour
         self._multi_model_cache_lock = threading.Lock()
         # Open-Meteo 共享 429 冷却计时器：触发限流后所有 OM 端点暂停请求
         self._open_meteo_rate_limit_until: float = 0.0
+        # Ensemble has its own cooldown: a 429 from the public ensemble API must not
+        # block forecast calls that go to a self-hosted server.
+        self._open_meteo_ensemble_rate_limit_until: float = 0.0
         self._open_meteo_rl_cooldown: int = int(
             os.getenv("OPEN_METEO_RATE_LIMIT_COOLDOWN_SEC", "900")  # 默认 15 分钟
         )

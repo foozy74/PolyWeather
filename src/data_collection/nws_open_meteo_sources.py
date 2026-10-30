@@ -372,7 +372,7 @@ class NwsOpenMeteoSourceMixin:
                     record_source_call("open_meteo", "forecast", "cache_hit", (time.perf_counter() - started) * 1000.0)
                     return dict(cached_data)
         try:
-            url = "https://api.open-meteo.com/v1/forecast"
+            url = getattr(self, "open_meteo_forecast_url", "https://api.open-meteo.com/v1/forecast")
             params = {
                 "latitude": lat,
                 "longitude": lon,
@@ -519,8 +519,8 @@ class NwsOpenMeteoSourceMixin:
         now_ts = time.time()
         # ── 429 冷却期检查（所有 Open-Meteo 端点共享）─────────────────
         with self._open_meteo_rl_lock:
-            if now_ts < self._open_meteo_rate_limit_until:
-                remaining = int(self._open_meteo_rate_limit_until - now_ts)
+            if now_ts < self._open_meteo_ensemble_rate_limit_until:
+                remaining = int(self._open_meteo_ensemble_rate_limit_until - now_ts)
                 logger.debug(f"Open-Meteo Ensemble 冷却期中，跳过请求，还需 {remaining}s")
                 with self._ensemble_cache_lock:
                     stale = self._ensemble_cache.get(cache_key)
@@ -633,7 +633,7 @@ class NwsOpenMeteoSourceMixin:
                     f"Ensemble API rate limited (429), fallback to cache if available: lat={lat}, lon={lon}"
                 )
                 with self._open_meteo_rl_lock:
-                    self._open_meteo_rate_limit_until = time.time() + cooldown_to_use
+                    self._open_meteo_ensemble_rate_limit_until = time.time() + cooldown_to_use
             else:
                 logger.warning(f"Ensemble API 请求失败: {e}")
             with self._ensemble_cache_lock:
@@ -699,7 +699,7 @@ class NwsOpenMeteoSourceMixin:
                     record_source_call("open_meteo", "multi_model", "cache_hit", (time.perf_counter() - started) * 1000.0)
                     return dict(cached_data)
         try:
-            url = "https://api.open-meteo.com/v1/forecast"
+            url = getattr(self, "open_meteo_forecast_url", "https://api.open-meteo.com/v1/forecast")
             models = ",".join(OPEN_METEO_MULTI_MODEL_ORDER)
             params = {
                 "latitude": lat,
