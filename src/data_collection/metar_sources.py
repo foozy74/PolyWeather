@@ -372,7 +372,6 @@ class MetarSourceMixin:
             params = {
                 "ids": icao,
                 "format": "json",
-                "hours": 24,
             }
             response = self._http_get(
                 url,
