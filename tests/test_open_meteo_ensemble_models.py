@@ -52,3 +52,12 @@ def test_ensemble_model_is_configurable(monkeypatch):
     collector, calls = _collector(monkeypatch, "ecmwf_ifs025")
     collector.fetch_ensemble(48.2, 16.37)
     assert calls[0]["models"] == "ecmwf_ifs025"
+
+
+def test_ensemble_url_is_configurable(monkeypatch):
+    monkeypatch.setenv("OPEN_METEO_ENSEMBLE_URL", "https://ens.example/v1/ensemble")
+    collector, _ = _collector(monkeypatch, "ecmwf_ifs025")
+    seen = []
+    monkeypatch.setattr(collector, "_http_get", lambda url, **kw: seen.append(url) or _Resp(_PAYLOAD))
+    collector.fetch_ensemble(48.2, 16.37)
+    assert seen == ["https://ens.example/v1/ensemble"]

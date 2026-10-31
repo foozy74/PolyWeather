@@ -543,7 +543,7 @@ class NwsOpenMeteoSourceMixin:
                     record_source_call("open_meteo", "ensemble", "cache_hit", (time.perf_counter() - started) * 1000.0)
                     return dict(cached_data)
         try:
-            url = "https://ensemble-api.open-meteo.com/v1/ensemble"
+            url = getattr(self, "open_meteo_ensemble_url", "https://ensemble-api.open-meteo.com/v1/ensemble")
             params = {
                 "latitude": lat,
                 "longitude": lon,
