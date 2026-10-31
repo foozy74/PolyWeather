@@ -513,7 +513,8 @@ class NwsOpenMeteoSourceMixin:
         started = time.perf_counter()
         cache_key = (
             f"{round(float(lat), 4)}:{round(float(lon), 4)}:"
-            f"{'f' if use_fahrenheit else 'c'}"
+            f"{'f' if use_fahrenheit else 'c'}:"
+            f"{getattr(self, 'open_meteo_ensemble_models', 'icon_seamless')}"
         )
         self._maybe_reload_open_meteo_disk_cache()
         now_ts = time.time()
@@ -549,6 +550,7 @@ class NwsOpenMeteoSourceMixin:
                 "daily": "temperature_2m_max",
                 "timezone": "auto",
                 "forecast_days": 3,
+                "models": getattr(self, "open_meteo_ensemble_models", "icon_seamless"),
             }
             if use_fahrenheit:
                 params["temperature_unit"] = "fahrenheit"

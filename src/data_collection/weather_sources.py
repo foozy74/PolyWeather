@@ -166,6 +166,10 @@ class WeatherDataCollector(OpenMeteoCacheMixin, SettlementSourceMixin, MetarSour
             os.getenv("OPEN_METEO_FORECAST_URL", "").strip()
             or "https://api.open-meteo.com/v1/forecast"
         )
+        # Ensemble API rejects requests without an explicit model ("best_match" unsupported).
+        self.open_meteo_ensemble_models = (
+            os.getenv("OPEN_METEO_ENSEMBLE_MODELS", "").strip() or "icon_seamless"
+        )
         self.multi_model_cache_version = str(
             os.getenv("OPEN_METEO_MULTI_MODEL_CACHE_VERSION", "v3")
         ).strip() or "v3"
