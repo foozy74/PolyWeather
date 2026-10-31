@@ -166,6 +166,11 @@ class WeatherDataCollector(OpenMeteoCacheMixin, SettlementSourceMixin, MetarSour
             os.getenv("OPEN_METEO_FORECAST_URL", "").strip()
             or "https://api.open-meteo.com/v1/forecast"
         )
+        # Ensemble may point at our ECMWF open-data service (serves ecmwf_ifs025 only).
+        self.open_meteo_ensemble_url = (
+            os.getenv("OPEN_METEO_ENSEMBLE_URL", "").strip()
+            or "https://ensemble-api.open-meteo.com/v1/ensemble"
+        )
         # Ensemble API rejects requests without an explicit model ("best_match" unsupported).
         self.open_meteo_ensemble_models = (
             os.getenv("OPEN_METEO_ENSEMBLE_MODELS", "").strip() or "icon_seamless"
