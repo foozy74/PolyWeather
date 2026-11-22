@@ -10,7 +10,7 @@ services:
         - DOCKER_DEFAULT_PLATFORM=linux/arm64
     container_name: polyweather-pi-frontend
     ports:
-      - "8080:80"
+      - "${PI_FRONTEND_PORT:-8080}:80"
     restart: unless-stopped
     # Limit resources for Raspberry Pi 4
     deploy:
