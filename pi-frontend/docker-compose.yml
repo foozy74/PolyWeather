@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  pi-frontend:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      # Specify arm64 platform to ensure compatibility with Raspberry Pi 4
+      args:
+        - DOCKER_DEFAULT_PLATFORM=linux/arm64
+    container_name: polyweather-pi-frontend
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    # Limit resources for Raspberry Pi 4
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.10'
+          memory: 64M
+    # extra_hosts removed since we are using docker network directly
+    networks:
+      - default
+      - polyweather_default
+
+networks:
+  polyweather_default:
+    external: true
