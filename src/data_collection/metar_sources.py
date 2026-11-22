@@ -117,6 +117,9 @@ class MetarSourceMixin:
                     timeout=timeout,
                 )
                 response.raise_for_status()
+                # aviationweather answers stations without reports with an empty 204 body
+                if not response.content.strip():
+                    return []
                 payload = response.json()
                 return payload if isinstance(payload, list) else []
 
